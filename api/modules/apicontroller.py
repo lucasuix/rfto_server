@@ -16,6 +16,7 @@ class ApiController:
         "concluir_manutencao": ApiController.finish_maintenence,
         "iniciar_manutencao": ApiController.start_maintenence,
         "salvar_manutencao": ApiController.save_maintenence,
+        "pausar_manutencao": ApiController.pause_maintenence,
         }
         return actions[action](rft_data)
     
@@ -43,7 +44,11 @@ class ApiController:
         '''
     
     @staticmethod
-    def finish_maintenence(json_data): # Enviar o serialNumber, puxar a mais recente e montar a manutenção
+    def finish_maintenence(rft_data): # Enviar o serialNumber, puxar a mais recente e montar a manutenção
+        print(rft_data)
+        return {'success': True, 'toast': 'RFT concluída com sucesso!'}
+
+        '''
         rft = Rfts.objects.get(id=json_data['id'])
 
         json_data["end_time"] = datetime.now()
@@ -66,10 +71,14 @@ class ApiController:
         else:
             print(serializer.errors)
             return {"toast": "RFT com campos faltando"}
+        '''
 
 
     @staticmethod
-    def save_maintenence(json_data):
+    def save_maintenence(rft_data):
+        print(rft_data)
+        return {'success': True, 'toast': 'Alterações salvas!'}
+        '''
         rft = Rfts.objects.get(id=json_data['id'])
 
         serializer = RftsSerializer(rft, data=json_data, partial=True)
@@ -81,9 +90,35 @@ class ApiController:
             print(serializer.errors)
             print(f"Erro ao salvar RFT {rft.id}")
             return {"toast": "Um erro ocorreu ao atualizar a RFT"}
+        '''
     
     @staticmethod
-    def start_maintenence(json_data):
+    def start_maintenence(rft_data):
+        print(rft_data)
+        return {
+            'success': True,
+            'toast': 'Iniciando nova manutenção',
+            'rft': {
+                'id': '82ydsycu389e98',
+                'serialnumber': '0225030209090',
+                'operador_id': '17',
+                'etapa_id': '1',
+                'erro_id': '1',
+                'congelada': False
+            }
+        }
+    
+    @staticmethod
+    def pause_maintenence(rft_data):
+        print(rft_data)
+        return {
+            'success': True,
+            'toast': 'RFT pausada! Só será possível concluir após despausar.',
+            'rft': {
+                'congelada': True
+            }
+        }    
+        '''
         rft = Rfts.objects(serialNumber=json_data["serialNumber"]).order_by('-id').first()
 
         update_data = {
@@ -98,3 +133,6 @@ class ApiController:
         else:
             print(f"Não encontrou nenhuma RFT para essa TCU {json_data["serialNumber"]}")
             return {"toast": "Não foi encontrada nenhuma RFT para essa TCU"}
+        '''
+
+        
