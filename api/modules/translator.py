@@ -1,4 +1,4 @@
-from models import Rfts
+from api.models import Rfts
 
 class Translator:
 

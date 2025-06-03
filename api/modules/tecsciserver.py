@@ -1,8 +1,12 @@
 import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Server:
 
-	def __init__(self, server_url: str = "https://ppc.tecsci.com.br/api/v1.0") -> None:
+	def __init__(self, server_url: str = os.getenv('SERVER_IP')) -> None:
 		self.server_url = server_url
 		self.token = None
 		self.response = None
@@ -12,7 +16,7 @@ class Server:
 			response = requests.post(
 				self.server_url + "/auth/login",
 				headers={'Content-Type': 'application/json'},
-				json={'username': 'gustavo.elias', 'password': '12345678'}
+				json={'username': os.getenv('USERNAME'), 'password': os.getenv('PASSWORD')}
 				)
 			self.token = response.json().get("access_token")
 			return True

@@ -7,5 +7,5 @@ router.register(r'rfts', RftsViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('/rfts/app/', APP.as_view(), name='rfts-acao')
+    path('app/', APP.as_view(), name='rfts-acao')
 ]

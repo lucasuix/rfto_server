@@ -1,10 +1,10 @@
 from rest_framework.views import APIView
-from rest_framework.views import Response
+from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_mongoengine.viewsets import ModelViewSet
 from .models import Rfts
 from .serializers import RftsSerializer
-from modules.apicontroller import ApiController
+from .modules.apicontroller import ApiController
 
 # Create your views here.
 class RftsViewSet(ModelViewSet):
@@ -14,10 +14,10 @@ class RftsViewSet(ModelViewSet):
 
 class APP(APIView):
 
-    def post(request):
+    def post(self, request):
 
-        data = dict(request.data)
-        action = data.pop('action')
+        rft_data = dict(request.data['rft'])
+        metadata = dict(request.data['metadata'])
         
-        response = ApiController.run(data, action)
+        response = ApiController.run(rft_data, metadata)
         return Response(response, status=status.HTTP_200_OK)

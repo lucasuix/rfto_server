@@ -1,24 +1,30 @@
-from models import Rfts
+from api.models import Rfts
 from datetime import datetime
-from serializers import RftsSerializer, ManutencaoSerializer
+from api.serializers import RftsSerializer, ManutencaoSerializer
 from .translator import Translator
 from .tecsciserver import server
 
 class ApiController:
     
     @staticmethod
-    def run(json_data, action):
-        print(type(action))
+    def run(rft_data, metadata):
+        
+        action = metadata['action']
+
         actions = {
         "nova_rft": ApiController.new_rft,
         "concluir_manutencao": ApiController.finish_maintenence,
         "iniciar_manutencao": ApiController.start_maintenence,
         "salvar_manutencao": ApiController.save_maintenence,
         }
-        return actions[action](json_data)
+        return actions[action](rft_data)
     
     @staticmethod
-    def new_rft(json_data):
+    def new_rft(rft_data):
+        print(rft_data)
+        return {'success': True, 'toast': 'RFT criada com sucesso!'}
+
+        '''
         json_data["start_time"] = datetime.now()
         serializer = RftsSerializer(data=json_data)
         if serializer.is_valid():
@@ -34,6 +40,7 @@ class ApiController:
         else:
             print(serializer.errors)
             return {"toast": "RFT possui dados inválidos."}
+        '''
     
     @staticmethod
     def finish_maintenence(json_data): # Enviar o serialNumber, puxar a mais recente e montar a manutenção
