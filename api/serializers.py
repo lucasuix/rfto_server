@@ -11,7 +11,10 @@ class ManutencaoSerializer(RftsSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Make these fields required
-        self.fields['tecnicoID'].required = True
-        self.fields['solucao'].required = True
-        self.fields['actions_taken'].required = True
+        self.fields['tecnico_id'].required = True
+        self.fields['solucao_id'].required = True
+        self.fields['procedimento'].required = True
         self.fields['rft_id'].required = True
+
+rft_serializer = RftsSerializer()
+manutencao_serializer = ManutencaoSerializer()

@@ -1,27 +1,34 @@
-# from django.db import models
 from mongoengine import *
+from .embedded import MetaInfo
 from datetime import datetime
-# Create your models here.
 
 connect('rft_db')
 
 class Rfts(Document):
-    # Envio
-    serialNumber = StringField(regex=r'^\d{1,13}$', required=True)
-    operadorID = StringField(required=True)
-    stage = StringField(required=True, choices=['burnin', 'pre_tests', 'potencia'])
-    defect = DictField(required=True)
-    sent_in = DateTimeField(default=datetime.now(), required=True)
-    obs = StringField(required= False)
-    status = StringField(required=True, choices=['concluida', 'aberta'], default='aberta')
+    # Identificação
+    serialnumber = StringField(regex=r'^\d{13}$', required=True)
+    operador_id = IntField(required=True)
+    etapa_id = IntField(required=True, choices=[1, 2, 3, 4])
+    erro_id = IntField(required=True)
+    defeitos = DictField()
+    rft_id = IntField()  # Se necessário
 
-    # Manutenção
-    start_time = DateTimeField()
-    end_time = DateTimeField()
-    tecnicoID = StringField()
-    actions_taken = StringField(max_length=200)
-    solucao = StringField()
-    rft_id = StringField()
+    # Datas principais
+    enviada_em = DateTimeField(default=datetime.now, required=True)
+    iniciada_em = DateTimeField()
+    concluida_em = DateTimeField()
+
+    # Dados de produção/manutenção
+    tecnico_id = IntField()
+    perdas = StringField()
+    observacoes = StringField()
+    procedimento = StringField(max_length=200)
+    solucao_id = IntField()
+
+    # Meta: dados internos (não exibidos ao usuário)
+    metadata = EmbeddedDocumentField(MetaInfo)
+
+
 
 
 
