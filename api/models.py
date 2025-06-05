@@ -21,7 +21,6 @@ class Rfts(Document):
     # Dados de produção/manutenção
     tecnico_id = IntField()
     perdas = StringField()
-    observacoes = StringField()
     procedimento = StringField(max_length=200)
     solucao_id = IntField()
 

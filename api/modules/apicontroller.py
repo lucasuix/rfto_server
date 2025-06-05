@@ -45,17 +45,39 @@ class ApiController:
         rft_serializer = RftsSerializer(data=rft_data)
         return ApiController.saveandreturn(rft_serializer, 
                                            'RFT criada com sucesso', 
-                                           'Erro!')
+                                           'Erro! Verifique os campos da RFT.')
     
     @staticmethod
-    def finish_maintenence(rft_data): # Enviar o serialNumber, puxar a mais recente e montar a manutenção
+    def finish_maintenence(rft_data):
         print(rft_data)
-        return {'success': True, 'toast': 'RFT concluída com sucesso!'}
+        rft = Rfts.objects.get(id=rft_data['id'])
+        if rft:
+            rft_data['concluida_em'] = datetime.now()
+            old_metadata = rft.metadata.to_mongo().to_dict()
+            old_metadata['duracao_real'] = WorkTimeCalculator.to_minutes(rft_data['concluida_em'] - rft.iniciada_em)
+            old_metadata['duracao_propria'] = WorkTimeCalculator.calculate_total_minutes(rft.iniciada_em, rft_data['concluida_em'])
+            old_metadata['concluida'] = True
+            rft_data['metadata'] = old_metadata
+            rft_serializer = RftsSerializer(instance=rft, data=rft_data, partial=True)
+            return ApiController.saveandreturn(rft_serializer,
+                                               'RFT concluída com sucesso!',
+                                               'Um erro ocorreu ao concluir a RFT')
+        else:
+            return {'success': False,
+                    'toast': 'Nenhuma RFT foi encontrada para essa TCU!'}
 
     @staticmethod
     def save_maintenence(rft_data):
         print(rft_data)
-        return {'success': True, 'toast': 'Alterações salvas!'}
+        rft = Rfts.objects.get(id=rft_data['id'])
+        if rft:
+            rft_serializer = RftsSerializer(instance=rft, data=rft_data, partial=True)
+            return ApiController.saveandreturn(rft_serializer,
+                                               'Alterações salvas!',
+                                               'Um erro ocorreu ao salvar a RFT')
+        else:
+            return {'success': False,
+                    'toast': 'Nenhuma RFT foi encontrada para essa TCU!'}
     
     @staticmethod
     def start_maintenence(rft_data):
@@ -65,7 +87,7 @@ class ApiController:
             rft_serializer = RftsSerializer(instance=rft, data=rft_data, partial=True)
             return ApiController.saveandreturn(rft_serializer, 
                                                'Dados da RFT recuperados com sucesso!', 
-                                               'Um erro ocorreu!')
+                                               'Um erro ocorreu ao recuperar dados da RFT')
         else:
             return {'success': False,
                     'toast': 'Nenhuma RFT foi encontrada para essa TCU!'}
@@ -105,10 +127,6 @@ class ApiController:
         else:
             return {'success': False,
                     'toast': 'Nenhuma RFT foi encontrada para essa TCU!'}
-    
-    # SUPER IMPORTANTE EM RELAÇÃO A DURAÇÃO PROPRIA
-    # TEMPO_REAL - WorkTime.calculate_total_minutes -> TEMPO QUE VOCÊ NÃO CONSEGUE FISICAMENTE TRABALHAR NELA (Final de Semana, Almoço e etc...)
-    # TEMPO_PROPRIO = (TEMPO_REAL - WorkTime.calculate_total_minutes) - metadata.tempo_congelada -> TEMPO QUE VOCÊ PODERIA ESTAR TRABALHANDO NELA MAS NÃO ESTAVA POR ALGUMA RAZÃO MAIOR
 '''
 {
             'success': True,
