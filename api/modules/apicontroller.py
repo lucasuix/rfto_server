@@ -79,7 +79,7 @@ class ApiController:
     
     @staticmethod
     def start_maintenence(rft_data):
-        rft = Rfts.objects(serialnumber=rft_data['serialnumber']).first()
+        rft = Rfts.objects(serialnumber=rft_data['serialnumber']).order_by('-enviada_em').first()
         if rft:
             rft_data['iniciada_em'] = datetime.now()
             rft_serializer = RftsSerializer(instance=rft, data=rft_data, partial=True)
@@ -98,7 +98,6 @@ class ApiController:
             old_metadata = rft.metadata.to_mongo().to_dict()  # Converte para dicionário puro
             old_metadata['congelada'] = True
             old_metadata['congelamento_inicio'] = datetime.now()
-            old_metadata['tempo_congelada'] = 0
             rft_data['metadata'] = old_metadata
             rft_serializer = RftsSerializer(instance=rft, data=rft_data, partial=True)
             return ApiController.saveandreturn(rft_serializer,

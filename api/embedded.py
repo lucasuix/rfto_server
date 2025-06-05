@@ -8,7 +8,7 @@ class MetaInfo(EmbeddedDocument):
     descricao_defeito = StringField()
     duracao_real = FloatField()
     duracao_propria = FloatField()
-    tempo_congelada = FloatField()
+    tempo_congelada = FloatField(default=0)
     congelada = BooleanField(default=False)
     congelamento_inicio = DateTimeField()
     congelamento_final = DateTimeField()
