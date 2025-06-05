@@ -13,7 +13,6 @@ class ManutencaoSerializer(RftsSerializer):
         # Make these fields required
         self.fields['tecnico_id'].required = True
         self.fields['solucao_id'].required = True
-        self.fields['procedimento'].required = True
         self.fields['rft_id'].required = True
 
 rft_serializer = RftsSerializer()
