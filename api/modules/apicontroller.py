@@ -1,8 +1,6 @@
 from api.models import Rfts
 from datetime import datetime
-from api.serializers import RftsSerializer, ManutencaoSerializer
-from .translator import Translator
-from .tecsciserver import server
+from api.serializers import RftsSerializer
 from .calculate_time import WorkTimeCalculator
 import logging
 
@@ -55,7 +53,7 @@ class ApiController:
             rft_data['concluida_em'] = datetime.now()
             old_metadata = rft.metadata.to_mongo().to_dict()
             old_metadata['duracao_real'] = WorkTimeCalculator.to_minutes(rft_data['concluida_em'] - rft.iniciada_em)
-            old_metadata['duracao_propria'] = WorkTimeCalculator.calculate_total_minutes(rft.iniciada_em, rft_data['concluida_em'])
+            old_metadata['duracao_propria'] = WorkTimeCalculator.calculate_total_minutes(rft.iniciada_em, rft_data['concluida_em']) - old_metadata['tempo_congelada']
             old_metadata['concluida'] = True
             rft_data['metadata'] = old_metadata
             rft_serializer = RftsSerializer(instance=rft, data=rft_data, partial=True)
@@ -104,7 +102,7 @@ class ApiController:
             rft_data['metadata'] = old_metadata
             rft_serializer = RftsSerializer(instance=rft, data=rft_data, partial=True)
             return ApiController.saveandreturn(rft_serializer,
-                                               'RFT pausada! Só será possível concluir após salvar',
+                                               'RFT pausada! Só será possível concluir após retomar.',
                                                'Ocorreu um erro ao pausar RFT')
         else:
             return {'success': False,
@@ -118,7 +116,7 @@ class ApiController:
             old_metadata = rft.metadata.to_mongo().to_dict()  # Converte para dicionário puro
             old_metadata['congelada'] = False
             old_metadata['congelamento_final'] = datetime.now()
-            old_metadata['tempo_congelada'] = old_metadata['tempo_congelada'] + WorkTimeCalculator.to_minutes(old_metadata['congelamento_final'] - old_metadata['congelamento_inicio'])
+            old_metadata['tempo_congelada'] = old_metadata['tempo_congelada'] + WorkTimeCalculator.calculate_total_minutes(old_metadata['congelamento_inicio'], old_metadata['congelamento_final'])
             rft_data['metadata'] = old_metadata
             rft_serializer = RftsSerializer(instance=rft, data=rft_data, partial=True)
             return ApiController.saveandreturn(rft_serializer,
